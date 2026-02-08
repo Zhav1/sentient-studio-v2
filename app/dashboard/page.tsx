@@ -196,27 +196,26 @@ export default function DashboardPage() {
     return (
         <div className="min-h-screen flex flex-col">
             {/* Header */}
-            <header className="border-b border-border px-6 py-4 flex items-center justify-between glass">
+            <header className="border-b border-slate-800 px-6 py-4 flex items-center justify-between bg-slate-900/80">
                 <div className="flex items-center gap-4">
-                    <Link href="/" className="text-xl font-bold neon-text">
+                    <Link href="/" className="text-xl font-bold text-indigo-400">
                         Sentient Studio
                     </Link>
-                    <span className="text-muted-foreground">/</span>
-                    <span className="text-muted-foreground">Agent Dashboard</span>
+                    <span className="text-slate-600">/</span>
+                    <span className="text-slate-400">Agent Dashboard</span>
                 </div>
                 <div className="flex items-center gap-3">
                     <button
                         onClick={() => setShowHistory(!showHistory)}
-                        className={`px-3 py-1.5 rounded-lg text-sm transition-all ${showHistory ? "bg-primary text-black" : "glass hover:bg-white/10"
+                        className={`px-3 py-1.5 rounded-lg text-sm transition-all ${showHistory ? "bg-indigo-500 text-white" : "bg-slate-800 border border-slate-700 hover:border-slate-600"
                             }`}
                     >
-                        📜 History
+                        History
                     </button>
                     <Link
                         href="/canvas"
-                        className="px-4 py-2 rounded-lg glass hover:bg-white/10 transition-all flex items-center gap-2"
+                        className="px-4 py-2 rounded-lg bg-slate-800 border border-slate-700 hover:border-slate-600 transition-all flex items-center gap-2"
                     >
-                        <span>🎨</span>
                         <span>Canvas</span>
                     </Link>
                 </div>
@@ -226,34 +225,34 @@ export default function DashboardPage() {
                 {/* Left: Input & Controls */}
                 <div className="space-y-6 lg:col-span-1">
                     {/* Constitution Status with Memory Indicator */}
-                    <div className="glass-card rounded-xl p-4">
+                    <div className="card p-4">
                         {constitution ? (
                             <div className="flex items-center gap-3">
-                                <span className="text-2xl">🧠</span>
+                                <div className="w-3 h-3 rounded-full bg-emerald-500" />
                                 <div>
-                                    <h3 className="font-semibold text-primary">Brand Memory Active</h3>
-                                    <p className="text-sm text-muted-foreground">
-                                        {constitution.visual_identity.color_palette_hex.length} colors •{" "}
+                                    <h3 className="font-semibold text-emerald-400">Brand Memory Active</h3>
+                                    <p className="text-sm text-slate-400">
+                                        {constitution.visual_identity.color_palette_hex.length} colors,{" "}
                                         {constitution.voice.keywords.length} keywords
                                     </p>
                                 </div>
                             </div>
                         ) : elements.length > 0 ? (
                             <div className="flex items-center gap-3">
-                                <span className="text-2xl">📋</span>
+                                <div className="w-3 h-3 rounded-full bg-amber-500" />
                                 <div>
-                                    <h3 className="font-semibold text-yellow-400">Canvas Ready</h3>
-                                    <p className="text-sm text-muted-foreground">
+                                    <h3 className="font-semibold text-amber-400">Canvas Ready</h3>
+                                    <p className="text-sm text-slate-400">
                                         {elements.length} elements - Agent will analyze first
                                     </p>
                                 </div>
                             </div>
                         ) : (
                             <div className="flex items-center gap-3">
-                                <span className="text-2xl">⚠️</span>
+                                <div className="w-3 h-3 rounded-full bg-amber-500" />
                                 <div>
-                                    <h3 className="font-semibold text-yellow-400">No Brand Data</h3>
-                                    <Link href="/canvas" className="text-sm text-primary hover:underline">
+                                    <h3 className="font-semibold text-amber-400">No Brand Data</h3>
+                                    <Link href="/canvas" className="text-sm text-indigo-400 hover:underline">
                                         Go to Canvas to create your moodboard
                                     </Link>
                                 </div>
@@ -262,20 +261,20 @@ export default function DashboardPage() {
                     </div>
 
                     {/* Prompt Input */}
-                    <div className="glass-card rounded-2xl p-6">
-                        <h2 className="text-xl font-semibold mb-4">🤖 Agent Task</h2>
+                    <div className="card p-6">
+                        <h2 className="text-xl font-semibold mb-4">Agent Task</h2>
                         <textarea
                             value={prompt}
                             onChange={(e) => setPrompt(e.target.value)}
                             placeholder="e.g., Create a summer sale poster with tropical vibes"
-                            className="w-full p-4 rounded-xl bg-background border border-border focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all resize-none"
+                            className="w-full p-4 rounded-lg bg-slate-950 border border-slate-700 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-all resize-none text-slate-100"
                             rows={3}
                             disabled={isRunning}
                         />
 
                         {error && (
                             <div className="mt-3 text-red-400 text-sm flex items-center gap-2">
-                                <span>⚠️</span>
+                                <span className="w-2 h-2 rounded-full bg-red-500" />
                                 <span>{error}</span>
                             </div>
                         )}
@@ -285,39 +284,33 @@ export default function DashboardPage() {
                                 <button
                                     onClick={runAgent}
                                     disabled={!prompt.trim()}
-                                    className="flex-1 px-6 py-4 rounded-xl bg-gradient-to-r from-primary to-accent text-black font-semibold
-                             hover:opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed
-                             flex items-center justify-center gap-2"
+                                    className="flex-1 btn-accent py-3 font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
-                                    <span>🚀</span>
-                                    <span>Run Agent</span>
+                                    Run Agent
                                 </button>
                             ) : (
                                 <button
                                     onClick={stopAgent}
-                                    className="flex-1 px-6 py-4 rounded-xl bg-red-500/20 text-red-400 font-semibold
-                             hover:bg-red-500/30 transition-all flex items-center justify-center gap-2"
+                                    className="flex-1 px-6 py-3 rounded-lg bg-red-500/20 text-red-400 font-semibold hover:bg-red-500/30 transition-all"
                                 >
-                                    <span>⏹️</span>
-                                    <span>Stop Agent</span>
+                                    Stop Agent
                                 </button>
                             )}
                         </div>
                     </div>
 
                     {/* Agent Activity Feed */}
-                    <div className="glass-card rounded-2xl p-6">
+                    <div className="card p-6">
                         <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                            <span>💭</span>
                             <span>Agent Thinking</span>
                             {isRunning && (
-                                <span className="ml-auto w-2 h-2 bg-primary rounded-full animate-pulse" />
+                                <span className="ml-auto w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
                             )}
                         </h3>
 
                         <div className="space-y-3 max-h-[350px] overflow-y-auto">
                             {events.length === 0 ? (
-                                <p className="text-muted-foreground text-sm text-center py-6">
+                                <p className="text-slate-500 text-sm text-center py-6">
                                     Agent reasoning will appear here...
                                 </p>
                             ) : (
@@ -327,22 +320,22 @@ export default function DashboardPage() {
                                         className={`p-3 rounded-lg text-sm ${event.type === "error"
                                             ? "bg-red-500/10 border border-red-500/20"
                                             : event.type === "complete"
-                                                ? "bg-green-500/10 border border-green-500/20"
-                                                : "bg-white/5"
+                                                ? "bg-emerald-500/10 border border-emerald-500/20"
+                                                : "bg-slate-800/50"
                                             }`}
                                     >
                                         {event.data.thinking && (
-                                            <p className="text-muted-foreground italic mb-2">
-                                                💭 "{event.data.thinking}"
+                                            <p className="text-slate-400 italic mb-2">
+                                                "{event.data.thinking}"
                                             </p>
                                         )}
                                         {event.data.tool && (
-                                            <p className="text-primary font-mono text-xs">
-                                                → {event.data.tool}()
+                                            <p className="text-indigo-400 font-mono text-xs">
+                                                {event.data.tool}()
                                             </p>
                                         )}
                                         {event.data.message && (
-                                            <p className={event.type === "complete" ? "text-green-400" : ""}>
+                                            <p className={event.type === "complete" ? "text-emerald-400" : "text-slate-300"}>
                                                 {event.data.message}
                                             </p>
                                         )}
@@ -354,17 +347,14 @@ export default function DashboardPage() {
                 </div>
 
                 {/* Center: Generated Image */}
-                <div className="glass-card rounded-2xl p-6 flex flex-col lg:col-span-1">
-                    <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                        <span>🖼️</span>
-                        <span>Generated Asset</span>
-                    </h3>
+                <div className="card p-6 flex flex-col lg:col-span-1">
+                    <h3 className="text-lg font-semibold mb-4">Generated Asset</h3>
 
-                    <div className="flex-1 rounded-xl bg-background/50 border border-dashed border-border flex items-center justify-center min-h-[400px] relative overflow-hidden">
+                    <div className="flex-1 rounded-lg bg-slate-950 border border-dashed border-slate-700 flex items-center justify-center min-h-[400px] relative overflow-hidden">
                         {isRunning && !finalImage ? (
                             <div className="text-center">
-                                <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-                                <p className="text-muted-foreground">Agent is working...</p>
+                                <div className="w-12 h-12 border-3 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+                                <p className="text-slate-400">Agent is working...</p>
                             </div>
                         ) : finalImage && finalImage !== "PLACEHOLDER_IMAGE_BASE64" ? (
                             <Image
@@ -374,8 +364,12 @@ export default function DashboardPage() {
                                 className="object-contain"
                             />
                         ) : (
-                            <div className="text-center text-muted-foreground">
-                                <div className="text-5xl mb-4">🎨</div>
+                            <div className="text-center text-slate-500">
+                                <div className="w-16 h-16 rounded-lg bg-slate-800 flex items-center justify-center mx-auto mb-4">
+                                    <svg className="w-8 h-8 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                    </svg>
+                                </div>
                                 <p>Generated image will appear here</p>
                             </div>
                         )}
@@ -384,13 +378,13 @@ export default function DashboardPage() {
                     {finalImage && finalImage !== "PLACEHOLDER_IMAGE_BASE64" && (
                         <div className="mt-4 flex gap-3">
                             <button
-                                className="flex-1 px-4 py-2 rounded-lg bg-gradient-to-r from-purple-500 to-cyan-500 text-white font-medium hover:opacity-90 transition-all"
+                                className="flex-1 btn-primary"
                                 onClick={() => setShowEditor(true)}
                             >
-                                ✨ Edit in Canvas
+                                Edit in Canvas
                             </button>
                             <button
-                                className="px-4 py-2 rounded-lg glass hover:bg-white/10 transition-all"
+                                className="btn-secondary px-4"
                                 onClick={() => {
                                     const link = document.createElement("a");
                                     link.href = `data:image/png;base64,${finalImage}`;
@@ -398,13 +392,13 @@ export default function DashboardPage() {
                                     link.click();
                                 }}
                             >
-                                💾
+                                Save
                             </button>
                             <button
-                                className="px-4 py-2 rounded-lg glass hover:bg-white/10 transition-all"
+                                className="btn-secondary px-4"
                                 onClick={() => setFinalImage(null)}
                             >
-                                🔄
+                                Clear
                             </button>
                         </div>
                     )}
@@ -413,23 +407,19 @@ export default function DashboardPage() {
                 {/* Canvas Editor Modal */}
                 {showEditor && finalImage && (
                     <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-6">
-                        <div className="w-full max-w-5xl max-h-[90vh] overflow-auto glass-card rounded-2xl p-6">
+                        <div className="w-full max-w-5xl max-h-[90vh] overflow-auto card p-6">
                             <div className="flex items-center justify-between mb-4">
-                                <h2 className="text-xl font-semibold flex items-center gap-2">
-                                    <span>✨</span>
-                                    <span>Canvas Editor</span>
-                                </h2>
+                                <h2 className="text-xl font-semibold">Canvas Editor</h2>
                                 <button
                                     onClick={() => setShowEditor(false)}
-                                    className="px-4 py-2 rounded-lg glass hover:bg-white/10 transition-all"
+                                    className="btn-secondary px-4 py-2"
                                 >
-                                    ✕ Close
+                                    Close
                                 </button>
                             </div>
                             <EditableCanvas
                                 imageBase64={finalImage}
                                 onSave={(dataUrl) => {
-                                    // Extract base64 from data URL and update finalImage
                                     const base64 = dataUrl.split(",")[1];
                                     if (base64) setFinalImage(base64);
                                     setShowEditor(false);
@@ -440,40 +430,39 @@ export default function DashboardPage() {
                 )}
 
                 {/* Right: History Panel */}
-                <div className={`glass-card rounded-2xl p-6 lg:col-span-1 ${showHistory ? "" : "hidden lg:block"}`}>
+                <div className={`card p-6 lg:col-span-1 ${showHistory ? "" : "hidden lg:block"}`}>
                     <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                        <span>📜</span>
                         <span>Agent History</span>
-                        <span className="ml-auto text-xs text-muted-foreground">
+                        <span className="ml-auto text-xs text-slate-500">
                             {history.length} steps
                         </span>
                     </h3>
 
                     <div className="space-y-2 max-h-[500px] overflow-y-auto">
                         {history.length === 0 ? (
-                            <p className="text-muted-foreground text-sm text-center py-6">
+                            <p className="text-slate-500 text-sm text-center py-6">
                                 Agent steps will be logged here for review and debugging.
                             </p>
                         ) : (
                             history.map((action, i) => (
                                 <div
                                     key={i}
-                                    className="p-3 rounded-lg bg-white/5 border border-border/50"
+                                    className="p-3 rounded-lg bg-slate-800/50 border border-slate-700/50"
                                 >
                                     <div className="flex items-center gap-2 mb-1">
-                                        <span className="text-xs text-muted-foreground">#{i + 1}</span>
-                                        <span className="font-mono text-sm text-primary">{action.tool}</span>
+                                        <span className="text-xs text-slate-500">#{i + 1}</span>
+                                        <span className="font-mono text-sm text-indigo-400">{action.tool}</span>
                                     </div>
                                     {action.thinking && (
-                                        <p className="text-xs text-muted-foreground italic mb-1">
+                                        <p className="text-xs text-slate-500 italic mb-1">
                                             {action.thinking.slice(0, 100)}...
                                         </p>
                                     )}
                                     <details className="text-xs">
-                                        <summary className="cursor-pointer text-muted-foreground hover:text-foreground">
+                                        <summary className="cursor-pointer text-slate-500 hover:text-slate-300">
                                             View details
                                         </summary>
-                                        <pre className="mt-2 p-2 bg-background rounded text-[10px] overflow-auto max-h-[100px]">
+                                        <pre className="mt-2 p-2 bg-slate-950 rounded text-[10px] overflow-auto max-h-[100px] text-slate-400">
                                             {JSON.stringify(action.input, null, 2)}
                                         </pre>
                                     </details>
