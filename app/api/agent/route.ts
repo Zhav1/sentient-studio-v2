@@ -1,6 +1,5 @@
 import { NextRequest } from "next/server";
-import { runAgentLoop } from "@/lib/ai/gemini";
-import type { AgentAction } from "@/lib/ai/tools";
+import { runOrchestratedAgent, type OrchestrationUpdate } from "@/lib/ai/orchestrated";
 import type { CanvasElement, BrandConstitution } from "@/lib/types";
 import { storeImage } from "@/lib/imageStore";
 
@@ -8,8 +7,8 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 /**
- * Streaming Agent API Endpoint
- * Uses Server-Sent Events to stream agent actions in real-time
+ * Orchestrated Agent API Endpoint
+ * Uses Server-Sent Events to stream multi-agent orchestration in real-time
  */
 export async function POST(request: NextRequest) {
     try {
@@ -38,7 +37,7 @@ export async function POST(request: NextRequest) {
             await writer.write(encoder.encode(message));
         };
 
-        // Keep-alive heartbeat (send every 5s for Vercel Hobby plan compatibility)
+        // Keep-alive heartbeat (every 5s for Vercel Hobby plan)
         const heartbeat = setInterval(async () => {
             try {
                 await writer.write(encoder.encode(": keep-alive\n\n"));
@@ -47,53 +46,56 @@ export async function POST(request: NextRequest) {
             }
         }, 5000);
 
-        // Run agent in background
+        // Run orchestrated agent in background
         (async () => {
             try {
                 // Send start event
                 await sendEvent("start", {
-                    message: "Agent starting...",
+                    message: "Agent orchestration starting...",
                     timestamp: Date.now(),
                 });
 
-                // Run the agent loop with action callback
-                const result = await runAgentLoop(
+                // Run the orchestrated agent with update callback
+                const result = await runOrchestratedAgent(
                     prompt,
                     canvasElements || [],
-                    async (action: AgentAction) => {
-                        // Stream each action to the client
+                    async (update: OrchestrationUpdate) => {
+                        // Stream each update to the client
                         await sendEvent("action", {
-                            step: action.timestamp,
-                            tool: action.tool,
-                            input: summarizeInput(action.input),
-                            output: summarizeOutput(action.output),
-                            thinking: action.thinking || getThinkingMessage(action.tool),
+                            step: Date.now(),
+                            phase: update.phase,
+                            tool: update.agentRole || "orchestrator",
+                            progress: update.progress,
+                            thinking: update.thinking || update.message,
+                            input: update.currentTask?.params || {},
+                            output: update.result?.data || null,
                         });
                     },
                     savedConstitution
                 );
 
-                // Debug log the result
-                console.log(`[Agent Complete] success=${result.success}, hasImage=${!!result.image}, imageLength=${result.image?.length || 0}`);
+                // Debug log
+                console.log(`[Orchestrated Agent] success=${result.success}, hasImage=${!!result.image}, tasks=${result.taskResults.length}`);
 
-                // Store large image in memory and send ID instead (SSE can't handle 1MB+ payloads)
+                // Store large image in memory and send ID instead
                 let imageId: string | null = null;
                 if (result.image) {
                     imageId = storeImage(result.image);
-                    console.log(`[Agent Complete] Stored image as ${imageId}`);
+                    console.log(`[Orchestrated Agent] Stored image as ${imageId}`);
                 }
 
-                // Send final result with imageId (not the full base64)
+                // Send final result
                 await sendEvent("complete", {
                     success: result.success,
                     message: result.message,
                     hasImage: !!result.image,
-                    imageId, // Client will fetch /api/image/[id] to get the actual image
+                    imageId,
                     constitution: result.constitution,
-                    historyLength: result.history.length,
+                    taskCount: result.taskResults.length,
+                    duration: result.duration,
                 });
             } catch (error) {
-                console.error("Agent error:", error);
+                console.error("Orchestrated agent error:", error);
                 await sendEvent("error", {
                     message: error instanceof Error ? error.message : "Unknown error",
                 });
@@ -116,64 +118,5 @@ export async function POST(request: NextRequest) {
             status: 500,
             headers: { "Content-Type": "application/json" },
         });
-    }
-}
-
-/**
- * Summarize input for display (avoid sending huge base64 strings)
- */
-function summarizeInput(
-    input: Record<string, unknown>
-): Record<string, unknown> {
-    const summary: Record<string, unknown> = {};
-
-    for (const [key, value] of Object.entries(input)) {
-        if (typeof value === "string" && value.length > 100) {
-            summary[key] = value.substring(0, 100) + "...";
-        } else if (key.includes("base64") || key.includes("image")) {
-            summary[key] = "[IMAGE DATA]";
-        } else {
-            summary[key] = value;
-        }
-    }
-
-    return summary;
-}
-
-/**
- * Summarize output for display
- */
-function summarizeOutput(output: unknown): unknown {
-    if (typeof output === "object" && output !== null) {
-        const obj = output as Record<string, unknown>;
-        if ("constitution" in obj) {
-            return { ...obj, constitution: "[CONSTITUTION OBJECT]" };
-        }
-        if ("image" in obj || "final_image" in obj) {
-            return { ...obj, image: "[IMAGE DATA]", final_image: "[IMAGE DATA]" };
-        }
-    }
-    return output;
-}
-
-/**
- * Human-friendly thinking messages for each tool
- */
-function getThinkingMessage(tool: string): string {
-    switch (tool) {
-        case "analyze_canvas":
-            return "🔍 Analyzing your moodboard to understand the brand DNA...";
-        case "generate_image":
-            return "🎨 Generating image with Nano Banana...";
-        case "audit_compliance":
-            return "🛡️ Auditing image against brand guidelines...";
-        case "refine_prompt":
-            return "✏️ Refining the prompt based on audit feedback...";
-        case "search_trends":
-            return "🌐 Searching for current design trends...";
-        case "complete_task":
-            return "✅ Task complete!";
-        default:
-            return `⚙️ Executing ${tool}...`;
     }
 }
