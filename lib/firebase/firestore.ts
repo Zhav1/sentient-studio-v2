@@ -179,6 +179,18 @@ export async function createCampaign(
 }
 
 /**
+ * Get a campaign by ID
+ */
+export async function getCampaign(campaignId: string): Promise<Campaign | null> {
+    const db = getDb();
+    const campaignRef = doc(db, "campaigns", campaignId);
+    const campaignSnap = await getDoc(campaignRef);
+
+    if (!campaignSnap.exists()) return null;
+    return campaignSnap.data() as Campaign;
+}
+
+/**
  * Get campaigns for a brand
  */
 export async function getCampaignsByBrand(brandId: string): Promise<Campaign[]> {

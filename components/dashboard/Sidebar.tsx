@@ -51,7 +51,11 @@ export function Sidebar() {
         { name: "Creative Canvas", href: "/canvas", icon: Palette },
         { name: "Asset History", href: "/dashboard/history", icon: History },
         { name: "Campaigns", href: "/dashboard/campaigns", icon: Zap },
-        { name: "Brand Settings", href: "/dashboard/settings", icon: Settings },
+        {
+            name: "Brand Settings",
+            href: currentBrand ? `/dashboard/brands/${currentBrand.id}` : "/dashboard",
+            icon: Settings
+        },
     ];
 
     return (

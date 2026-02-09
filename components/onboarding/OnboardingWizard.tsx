@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Sparkles, Globe, Upload, ChevronRight, ChevronLeft, CheckCircle2, Loader2, BarChart3, Palette, Type } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
+import { fireConfetti } from "@/components/ui/Confetti";
 
 type OnboardingStep = "identity" | "source" | "analysis" | "results";
 
@@ -55,6 +56,7 @@ export function OnboardingWizard() {
                 current++;
             } else {
                 clearInterval(interval);
+                fireConfetti(); // Trigger celebration
                 setTimeout(() => setStep("results"), 800);
             }
         }, 1200);
