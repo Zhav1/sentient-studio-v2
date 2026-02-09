@@ -109,6 +109,22 @@ export class CreativeDirectorAgent {
     }
 
     /**
+     * Generate multiple variations for A/B testing
+     */
+    async generateVariations(
+        prompt: string,
+        constitution: BrandConstitution | null,
+        count: number = 2
+    ): Promise<AgentResult[]> {
+        const results: AgentResult[] = [];
+        for (let i = 0; i < count; i++) {
+            const variationPrompt = `${prompt} (Variation ${i + 1}: ${i === 0 ? "Standard" : "Alternative composition"})`;
+            results.push(await this.generateAsset(variationPrompt, constitution));
+        }
+        return results;
+    }
+
+    /**
      * Enhance prompt with refine suggestions for retry
      */
     async refinePrompt(
@@ -158,19 +174,26 @@ Return ONLY the refined prompt, no explanation.
             return userPrompt;
         }
 
-        const colors = constitution.visual_identity.color_palette_hex;
-        const style = constitution.visual_identity.photography_style;
-        const forbidden = constitution.visual_identity.forbidden_elements;
+        const { visual_identity, voice, brand_essence } = constitution;
 
         return `
-${userPrompt}
+USER INTENT: ${userPrompt}
 
-BRAND REQUIREMENTS:
-- Use these exact colors: ${colors.join(", ")}
-- Photography/visual style: ${style}
-${forbidden.length > 0 ? `- MUST NOT include: ${forbidden.join(", ")}` : ""}
+BRAND DNA (ADHERE STRICTLY):
+- Essence: ${brand_essence}
+- Colors: ${visual_identity.color_palette_hex.join(", ")}
+- Photography Style: ${visual_identity.photography_style}
+- Typography/Fonts: ${visual_identity.fonts.join(", ")}
+- Composition Rules: ${visual_identity.composition_rules.join(", ")}
+- Visual Density: ${visual_identity.visual_density}
+- Signature Elements: ${visual_identity.signature_elements.join(", ")}
+- Voice Tone: ${voice.tone}
+${visual_identity.forbidden_elements.length > 0 ? `- FORBIDDEN ELEMENTS: ${visual_identity.forbidden_elements.join(", ")}` : ""}
 
-Generate a high-quality, professional image that adheres to these brand guidelines.
+SCENE REQUIREMENTS:
+Construct a high-end, professional scene that embodies the "${voice.tone}" brand voice. 
+Ensure the composition follows "${visual_identity.composition_rules[0] || "balanced"}" principles.
+Output should be premium, "Silicon Valley" quality.
 `.trim();
     }
 }

@@ -6,16 +6,28 @@ export interface BrandConstitution {
     visual_identity: {
         color_palette_hex: string[];
         photography_style: string;
+        fonts: string[];
+        composition_rules: string[];
         forbidden_elements: string[];
+        signature_elements: string[];
+        visual_density: "MINIMAL" | "BALANCED" | "COMPLEX";
     };
     voice: {
         tone: string;
+        catchphrases: string[];
+        vocabulary_level: "TECHNICAL" | "CASUAL" | "POETIC" | "DIRECT";
         keywords: string[];
+    };
+    content_patterns: {
+        thumbnail_structure?: string;
+        text_overlay_rules?: string;
+        face_prominence?: "HIGH" | "MEDIUM" | "LOW" | "NONE";
     };
     risk_thresholds: {
         nudity: "STRICT_ZERO_TOLERANCE" | "ALLOW_ARTISTIC";
         political: "STRICT_ZERO_TOLERANCE" | "ALLOW_SATIRE";
     };
+    brand_essence: string;
 }
 
 /**

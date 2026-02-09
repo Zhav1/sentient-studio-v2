@@ -194,38 +194,18 @@ export default function DashboardPage() {
     };
 
     return (
-        <div className="min-h-screen flex flex-col">
-            {/* Header */}
-            <header className="border-b border-slate-800 px-6 py-4 flex items-center justify-between bg-slate-900/80">
-                <div className="flex items-center gap-4">
-                    <Link href="/" className="text-xl font-bold text-indigo-400">
-                        Sentient Studio
-                    </Link>
-                    <span className="text-slate-600">/</span>
-                    <span className="text-slate-400">Agent Dashboard</span>
-                </div>
-                <div className="flex items-center gap-3">
-                    <button
-                        onClick={() => setShowHistory(!showHistory)}
-                        className={`px-3 py-1.5 rounded-lg text-sm transition-all ${showHistory ? "bg-indigo-500 text-white" : "bg-slate-800 border border-slate-700 hover:border-slate-600"
-                            }`}
-                    >
-                        History
-                    </button>
-                    <Link
-                        href="/canvas"
-                        className="px-4 py-2 rounded-lg bg-slate-800 border border-slate-700 hover:border-slate-600 transition-all flex items-center gap-2"
-                    >
-                        <span>Canvas</span>
-                    </Link>
-                </div>
-            </header>
+        <div className="space-y-8 animate-in fade-in duration-500">
+            {/* Page Header */}
+            <div>
+                <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Agent Workspace</h1>
+                <p className="text-slate-500 mt-1">Direct the agent to generate and audit brand-consistent assets.</p>
+            </div>
 
-            <main className="flex-1 p-6 max-w-7xl mx-auto w-full grid lg:grid-cols-3 gap-6">
+            <div className="grid lg:grid-cols-3 gap-8">
                 {/* Left: Input & Controls */}
                 <div className="space-y-6 lg:col-span-1">
                     {/* Constitution Status with Memory Indicator */}
-                    <div className="card p-4">
+                    <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
                         {constitution ? (
                             <div className="flex items-center gap-3">
                                 <div className="w-3 h-3 rounded-full bg-emerald-500" />
@@ -261,7 +241,7 @@ export default function DashboardPage() {
                     </div>
 
                     {/* Prompt Input */}
-                    <div className="card p-6">
+                    <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
                         <h2 className="text-xl font-semibold mb-4">Agent Task</h2>
                         <textarea
                             value={prompt}
@@ -300,7 +280,7 @@ export default function DashboardPage() {
                     </div>
 
                     {/* Agent Activity Feed */}
-                    <div className="card p-6">
+                    <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
                         <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
                             <span>Agent Thinking</span>
                             {isRunning && (
@@ -347,7 +327,7 @@ export default function DashboardPage() {
                 </div>
 
                 {/* Center: Generated Image */}
-                <div className="card p-6 flex flex-col lg:col-span-1">
+                <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col lg:col-span-1">
                     <h3 className="text-lg font-semibold mb-4">Generated Asset</h3>
 
                     <div className="flex-1 rounded-lg bg-slate-950 border border-dashed border-slate-700 flex items-center justify-center min-h-[400px] relative overflow-hidden">
@@ -430,7 +410,7 @@ export default function DashboardPage() {
                 )}
 
                 {/* Right: History Panel */}
-                <div className={`card p-6 lg:col-span-1 ${showHistory ? "" : "hidden lg:block"}`}>
+                <div className={`bg-white p-6 rounded-2xl border border-slate-100 shadow-sm lg:col-span-1 ${showHistory ? "" : "hidden lg:block"}`}>
                     <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
                         <span>Agent History</span>
                         <span className="ml-auto text-xs text-slate-500">
@@ -471,7 +451,7 @@ export default function DashboardPage() {
                         )}
                     </div>
                 </div>
-            </main>
+            </div>
         </div>
     );
 }

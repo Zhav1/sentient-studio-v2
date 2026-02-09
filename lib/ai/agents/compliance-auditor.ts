@@ -65,16 +65,20 @@ export class ComplianceAuditorAgent {
             const prompt = `
 <task>
 Audit this image against the Brand Constitution and provide a compliance score.
+Evaluate based on color adherence, typography, composition, and overall "vibe" consistency.
 </task>
 
 <brand_constitution>
+Essence: ${constitution.brand_essence}
 Colors: ${constitution.visual_identity.color_palette_hex.join(", ")}
 Photography Style: ${constitution.visual_identity.photography_style}
+Fonts: ${constitution.visual_identity.fonts.join(", ")}
+Composition Rules: ${constitution.visual_identity.composition_rules.join(", ")}
+Visual Density: ${constitution.visual_identity.visual_density}
+Signature Elements: ${constitution.visual_identity.signature_elements.join(", ") || "None"}
 Forbidden Elements: ${constitution.visual_identity.forbidden_elements.join(", ") || "None"}
 Voice Tone: ${constitution.voice.tone}
-Brand Keywords: ${constitution.voice.keywords.join(", ") || "None"}
 </brand_constitution>
-
 
 <output_format>
 Return a JSON object with:
