@@ -19,10 +19,8 @@ export class TrendScoutAgent {
      * Research trends via Google Search grounding
      */
     async researchTrends(query: string): Promise<any> {
-        // Use gemini-1.5-flash as it is more stable for grounding in some SDK versions, 
-        // or gemini-3-flash if fully supported.
         const model = this.client.getGenerativeModel({
-            model: "gemini-1.5-flash",
+            model: "gemini-3-flash-preview",
             tools: [{ googleSearch: {} }] as any,
         });
 
