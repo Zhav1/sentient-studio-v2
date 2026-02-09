@@ -890,5 +890,44 @@ NEXT_PUBLIC_FIREBASE_APP_ID=
 
 ---
 
-*Last Updated: 2026-02-08*
-*Version: 2.0 — Creator Brand Wedge*
+*Last Updated: 2026-02-09*
+*Version: 2.1 — Gap Analysis Appendix Added*
+
+---
+
+## Appendix: Implementation Gap Analysis
+
+> **Audit Date:** 2026-02-09
+> **Auditor Perspective:** Silicon Valley CTO / UX Strategist
+
+### User Journey Gaps
+
+| Journey | Status | Gap |
+|---------|--------|-----|
+| Discovery | ⚠️ Partial | No Login/Signup CTA on landing page |
+| Authentication | ❌ Missing | No `/login`, `/signup` pages |
+| Onboarding | ❌ Missing | No wizard; no social URL input (YouTube/Instagram) |
+| Dashboard | ⚠️ Partial | No user profile, brand selector, or empty state |
+| Generation | ✅ Works | |
+| Persistence | ❌ Missing | Generated assets not saved to Firestore |
+
+### Agent System Gaps
+
+| Agent | Implemented | Gap |
+|-------|-------------|-----|
+| Orchestrator | ⚠️ Partial | `delegateToAgent()` returns stubs; doesn't call real agent classes |
+| Brand DNA Analyst | ✅ Works | Schema missing: `color_meanings`, `visual_density`, `content_patterns` |
+| Creative Director | ✅ Works | No A/B variant generation (PRD wants 2-3 variants) |
+| Compliance Auditor | ✅ Works | No auto-regeneration on score < 60 |
+| Trend Scout | ⚠️ Orphaned | Agent exists but never called in main generation flow |
+| Context Memory | ⚠️ Partial | In-memory only; no Firestore persistence |
+| Export Optimizer | ✅ Works | |
+
+### Recommended UX Enhancements (Silicon Valley Standard)
+
+1. **Skeleton loaders** instead of spinners
+2. **Toast notifications** via `sonner`
+3. **Compliance score radial chart** (not just a number)
+4. **Keyboard shortcuts** (Cmd+G, Cmd+E)
+5. **Error boundaries** per component
+6. **ARIA labels** for accessibility
