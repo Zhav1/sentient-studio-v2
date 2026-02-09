@@ -9,6 +9,8 @@
 
 import type { BrandConstitution, CanvasElement } from "@/lib/types";
 import type { AgentResult, OrchestrationState } from "./types";
+import { getDb } from "@/lib/firebase/config";
+import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 
 // ============ SESSION CACHE ============
 
@@ -77,7 +79,6 @@ export interface CorrectionPattern {
 
 export class ContextMemoryAgent {
     private sessionCache: Map<string, SessionContext> = new Map();
-    private brandMemoryCache: Map<string, BrandMemory> = new Map();
 
     /**
      * Initialize or get a session
@@ -163,52 +164,69 @@ export class ContextMemoryAgent {
     // ============ BRAND MEMORY OPERATIONS ============
 
     /**
-     * Get or initialize brand memory
+     * Get brand memory from Firestore
      */
-    getBrandMemory(userId: string, brandId: string): BrandMemory | null {
-        const key = `${userId}:${brandId}`;
-        return this.brandMemoryCache.get(key) || null;
+    async getBrandMemory(userId: string, brandId: string): Promise<BrandMemory | null> {
+        try {
+            const db = getDb();
+            const memoryRef = doc(db, "brand_memories", `${userId}_${brandId}`);
+            const memorySnap = await getDoc(memoryRef);
+
+            if (!memorySnap.exists()) return null;
+            return memorySnap.data() as BrandMemory;
+        } catch (error) {
+            console.error("Error getting brand memory from Firestore:", error);
+            return null;
+        }
     }
 
     /**
-     * Save brand memory (in-memory, would persist to Firestore in production)
+     * Save brand memory to Firestore
      */
-    saveBrandMemory(memory: BrandMemory): void {
-        const key = `${memory.userId}:${memory.brandId}`;
-        this.brandMemoryCache.set(key, memory);
+    async saveBrandMemory(memory: BrandMemory): Promise<void> {
+        try {
+            const db = getDb();
+            const memoryRef = doc(db, "brand_memories", `${memory.userId}_${memory.brandId}`);
+            await setDoc(memoryRef, {
+                ...memory,
+                updatedAt: Date.now()
+            });
+        } catch (error) {
+            console.error("Error saving brand memory to Firestore:", error);
+        }
     }
 
     /**
-     * Update constitution with style snapshot
+     * Update constitution with style snapshot in Firestore
      */
-    updateConstitution(
+    async updateConstitution(
         userId: string,
         brandId: string,
         constitution: BrandConstitution,
         trigger: StyleSnapshot["trigger"]
-    ): void {
-        const key = `${userId}:${brandId}`;
-        const existing = this.brandMemoryCache.get(key);
+    ): Promise<void> {
+        const memory = await this.getBrandMemory(userId, brandId);
 
-        if (existing) {
+        if (memory) {
             // Add to style evolution
-            existing.styleEvolution.push({
+            memory.styleEvolution.push({
                 timestamp: Date.now(),
-                constitution: { ...existing.constitution },
+                constitution: { ...memory.constitution },
                 trigger,
             });
 
             // Keep last 10 snapshots
-            if (existing.styleEvolution.length > 10) {
-                existing.styleEvolution = existing.styleEvolution.slice(-10);
+            if (memory.styleEvolution.length > 10) {
+                memory.styleEvolution = memory.styleEvolution.slice(-10);
             }
 
             // Update constitution
-            existing.constitution = constitution;
-            existing.updatedAt = Date.now();
+            memory.constitution = constitution;
+            memory.updatedAt = Date.now();
+            await this.saveBrandMemory(memory);
         } else {
             // Create new
-            this.saveBrandMemory({
+            await this.saveBrandMemory({
                 userId,
                 brandId,
                 constitution,
@@ -222,14 +240,14 @@ export class ContextMemoryAgent {
     }
 
     /**
-     * Record a correction pattern for learning
+     * Record a correction pattern for learning in Firestore
      */
-    recordCorrection(
+    async recordCorrection(
         userId: string,
         brandId: string,
         correction: Omit<CorrectionPattern, "id" | "frequency" | "lastApplied">
-    ): void {
-        const memory = this.getBrandMemory(userId, brandId);
+    ): Promise<void> {
+        const memory = await this.getBrandMemory(userId, brandId);
         if (!memory) return;
 
         // Find existing pattern
@@ -252,17 +270,17 @@ export class ContextMemoryAgent {
             });
         }
 
-        this.saveBrandMemory(memory);
+        await this.saveBrandMemory(memory);
     }
 
     /**
      * Get applicable corrections for a generation
      */
-    getApplicableCorrections(
+    async getApplicableCorrections(
         userId: string,
         brandId: string
-    ): CorrectionPattern[] {
-        const memory = this.getBrandMemory(userId, brandId);
+    ): Promise<CorrectionPattern[]> {
+        const memory = await this.getBrandMemory(userId, brandId);
         if (!memory) return [];
 
         // Return patterns with frequency >= 2 (learned preferences)
@@ -270,14 +288,14 @@ export class ContextMemoryAgent {
     }
 
     /**
-     * Log an approved asset
+     * Log an approved asset to Firestore
      */
-    logApprovedAsset(
+    async logApprovedAsset(
         userId: string,
         brandId: string,
         asset: Omit<ApprovedAsset, "id" | "createdAt">
-    ): void {
-        const memory = this.getBrandMemory(userId, brandId);
+    ): Promise<void> {
+        const memory = await this.getBrandMemory(userId, brandId);
         if (!memory) return;
 
         memory.approvedAssets.push({
@@ -291,14 +309,14 @@ export class ContextMemoryAgent {
             memory.approvedAssets = memory.approvedAssets.slice(-100);
         }
 
-        this.saveBrandMemory(memory);
+        await this.saveBrandMemory(memory);
     }
 
     /**
      * Get summary of brand memory for context
      */
-    getBrandContext(userId: string, brandId: string): string {
-        const memory = this.getBrandMemory(userId, brandId);
+    async getBrandContext(userId: string, brandId: string): Promise<string> {
+        const memory = await this.getBrandMemory(userId, brandId);
         if (!memory) return "No brand memory available.";
 
         const corrections = memory.correctionPatterns

@@ -1,5 +1,6 @@
 import { initializeApp, getApps, FirebaseApp } from "firebase/app";
 import { getFirestore, Firestore } from "firebase/firestore";
+import { getAuth, Auth } from "firebase/auth";
 
 const firebaseConfig = {
     apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -13,6 +14,7 @@ const firebaseConfig = {
 // Initialize Firebase (singleton pattern)
 let app: FirebaseApp;
 let db: Firestore;
+let auth: Auth;
 
 export function getFirebaseApp(): FirebaseApp {
     if (!app) {
@@ -31,6 +33,13 @@ export function getDb(): Firestore {
         db = getFirestore(getFirebaseApp());
     }
     return db;
+}
+
+export function getFirebaseAuth(): Auth {
+    if (!auth) {
+        auth = getAuth(getFirebaseApp());
+    }
+    return auth;
 }
 
 // Check if Firebase is configured
